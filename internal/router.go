@@ -6,7 +6,7 @@ package internal
 
 import (
 	"github.com/Hidata-xyz/go-example/internal/pkg/middleware"
-	"github.com/Hidata-xyz/go-example/internal/smodel"
+	"github.com/Hidata-xyz/go-example/internal/seas"
 	"github.com/Hidata-xyz/go-example/pkg/ginwrap/wrap"
 	"github.com/gin-gonic/gin"
 )
@@ -16,5 +16,5 @@ func InitRouter(router *gin.Engine) {
 	engine.Use(middleware.Cors())
 	engine.Use(middleware.Auth)
 	group := engine.Group("manager")
-	smodel.InitRouter(group.Group("seas"))
+	seas.InitRouter(group.Group("seas"))
 }

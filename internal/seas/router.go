@@ -2,10 +2,10 @@
 // Date: 2022/5/11
 // Desc: smodel
 
-package smodel
+package seas
 
 import (
-	"github.com/Hidata-xyz/go-example/internal/smodel/controller"
+	"github.com/Hidata-xyz/go-example/internal/seas/controller"
 	"github.com/Hidata-xyz/go-example/pkg/ginwrap/wrap"
 )
 
