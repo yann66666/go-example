@@ -8,6 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type IGroupWrap interface {
+	Group(relativePath string) *groupWrap
+	Handle(httpMethod, relativePath string, base IBase, handle Handle)
+	Any(relativePath string, base IBase, handle Handle)
+	GET(relativePath string, base IBase, handle Handle)
+	POST(relativePath string, base IBase, handle Handle)
+	DELETE(relativePath string, base IBase, handle Handle)
+	PATCH(relativePath string, base IBase, handle Handle)
+	PUT(relativePath string, base IBase, handle Handle)
+	OPTIONS(relativePath string, base IBase, handle Handle)
+	HEAD(relativePath string, base IBase, handle Handle)
+}
+
 type groupWrap struct {
 	*gin.RouterGroup
 }

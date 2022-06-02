@@ -9,7 +9,7 @@ import (
 	"github.com/Hidata-xyz/go-example/pkg/ginwrap/wrap"
 )
 
-func InitRouter(group *wrap.GroupWrap) {
+func InitRouter(group wrap.IGroupWrap) {
 	api := controller.NewSeasModel("ZZZ")
 	group.POST("model", &controller.SaveModelReq{}, api.SaveModel)
 }
