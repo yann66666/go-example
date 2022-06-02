@@ -18,6 +18,7 @@ var index uint64
 
 func Print(c *gin.Context) {
 	current := atomic.AddUint64(&index, 1)
+	begin := time.Now()
 	c.Next()
 	end := time.Now()
 	var f func(string) string
@@ -26,7 +27,7 @@ func Print(c *gin.Context) {
 	} else {
 		f = ErrorColorMsg
 	}
-	fmt.Printf("[请求%d返回] %s | %d | %v | %v | %v | %s \n", current, end.Format(utils.TimeFormatSecond), c.Writer.Status(), end.UnixNano()/1e6-c.GetInt64(constants.CtxTime), f(cast.ToString(c.GetInt(constants.CtxCode))), f(c.GetString(constants.CtxMsg)), c.Request.URL.Path)
+	fmt.Printf("[请求%d返回] %s | %d | %v | %v | %v | %s \n", current, end.Format(utils.TimeFormatSecond), c.Writer.Status(), end.Sub(begin), f(cast.ToString(c.GetInt(constants.CtxCode))), f(c.GetString(constants.CtxMsg)), c.Request.URL.Path)
 }
 
 func InfoColorMsg(msg string) string {

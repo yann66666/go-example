@@ -5,7 +5,6 @@
 package wrap
 
 import (
-	"fmt"
 	"github.com/Hidata-xyz/go-example/pkg/ginwrap"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -22,11 +21,9 @@ func (u User) DecodeType() DecodeType {
 
 func TestServer(t *testing.T) {
 	engine := gin.New()
-	wrap := NewEngineWrap(engine)
-	wrap.GET("", &User{}, func(ctx *gin.Context, base IBase) *ginwrap.Response {
-		fmt.Println(ctx == nil)
-		fmt.Println(base.(*User))
-		return ginwrap.Response200(string([]byte("1,1,1\n2,2,2\nbdsf,sdfds,sdfsd\n,sdfdff,xxxx,xxxrf\n")))
+	wrap := NewEngineWrap(engine, EngineWrapLoggerOption(), PrintReqParamsOption(), PrintRespParamsOption())
+	wrap.GET("", User{}, func(ctx *gin.Context, base IBase) *ginwrap.Response {
+		return ginwrap.Response200(base)
 	})
 	http.ListenAndServe(":80", engine)
 	select {}

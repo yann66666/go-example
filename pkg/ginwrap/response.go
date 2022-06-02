@@ -5,6 +5,8 @@
 package ginwrap
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/Hidata-xyz/go-example/pkg/ginwrap/constants"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -19,14 +21,20 @@ type Response struct {
 	Timestamp int64       `json:"timestamp"` // 耗时  ms
 }
 
+const (
+	RespParams = "响应[%s]: %s\n"
+)
+
+var PrintResp bool
+
 func (r *Response) ReturnResult(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Headers", ctx.GetHeader("Access-Control-Request-Headers"))
 	ctx.Header("Access-Control-Allow-Methods", ctx.GetHeader("Access-Control-Request-Method"))
 	ctx.Header("Access-Control-Max-Age", "1728000")
-	//indent, _ := json.MarshalIndent(r, "", " ")
-	//fmt.Printf("***********************[%s]响应结果打印开始***********************\n", ctx.Request.URL.Path)
-	//fmt.Println(string(indent))
-	//fmt.Printf("***********************[%s]响应结果打印结束***********************\n", ctx.Request.URL.Path)
+	if PrintResp {
+		indent, _ := json.Marshal(r)
+		fmt.Printf(RespParams, ctx.Request.URL.Path, string(indent))
+	}
 	ctx.Set(constants.CtxCode, r.Code)
 	ctx.Set(constants.CtxMsg, r.Message)
 	r.Timestamp = time.Now().UnixNano()/1e6 - ctx.GetInt64(constants.CtxTime)

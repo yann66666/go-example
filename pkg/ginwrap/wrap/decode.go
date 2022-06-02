@@ -5,6 +5,7 @@
 package wrap
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/Hidata-xyz/go-example/pkg/ginwrap"
 	"github.com/Hidata-xyz/go-example/pkg/ginwrap/constants"
@@ -18,7 +19,7 @@ const (
 	DecodeTypeJson  DecodeType = iota + 1 //json
 	DecodeTypeQuery                       //URL query参数
 	DecodeTypeUri                         //URL path参数
-
+	ReqParams       = "请求[%s]: %s\n"
 )
 
 type DecodeErr struct {
@@ -42,31 +43,45 @@ func (d *DecodeErr) Response() *ginwrap.Response {
 }
 
 var (
-	ErrNotPoint      = &DecodeErr{constants.CodeServerError, fmt.Errorf("不是指针")}
 	ErrDecodeTypeErr = &DecodeErr{constants.CodeServerError, fmt.Errorf("不支持的解码类型")}
+	printReq         bool
 )
 
-func (d DecodeType) Decode(ctx *gin.Context, dst interface{}) *DecodeErr {
+func (d DecodeType) Decode(ctx *gin.Context, dst interface{}) (IBase, *DecodeErr) {
 	of := reflect.ValueOf(dst)
+	var v reflect.Value
 	if of.Kind() != reflect.Ptr {
-		return ErrNotPoint
+		v = reflect.New(of.Type())
+	} else {
+		v = reflect.New(of.Elem().Type())
 	}
 	var err error
 	switch d {
 	case DecodeTypeJson:
-		err = ctx.ShouldBindJSON(dst)
+		err = ctx.ShouldBindJSON(v.Interface())
 	case DecodeTypeQuery:
-		err = ctx.ShouldBindQuery(dst)
+		err = ctx.ShouldBindQuery(v.Interface())
 	case DecodeTypeUri:
-		err = ctx.ShouldBindUri(dst)
+		err = ctx.ShouldBindUri(v.Interface())
 	default:
-		return ErrDecodeTypeErr
+		return nil, ErrDecodeTypeErr
 	}
 
-	if err == nil {
-		return nil
+	if err != nil {
+		err = GetError(err, dst)
+		return nil, NewDecodeErr(constants.CodeBadRequest, err)
 	}
 
-	err = GetError(err, dst)
-	return NewDecodeErr(constants.CodeBadRequest, err)
+	if of.Kind() != reflect.Ptr {
+		v = v.Elem()
+	}
+
+	ret := v.Interface().(IBase)
+
+	if printReq {
+		indent, _ := json.Marshal(ret)
+		fmt.Printf(ReqParams, ctx.Request.URL.Path, string(indent))
+	}
+
+	return ret, nil
 }
